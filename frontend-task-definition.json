@@ -1,0 +1,35 @@
+{
+  "family": "movie-frontend-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::474068628779:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "movie-frontend",
+      "image": "474068628779.dkr.ecr.us-west-2.amazonaws.com/udacity-frontend:fixed2",
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "REACT_APP_MOVIE_API_URL",
+          "value": "http://35.88.29.232:3000"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/movie-frontend",
+          "awslogs-region": "us-west-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "ServiceName": "movie-api",
+  "SourceConfiguration": {
+    "ImageRepository": {
+      "ImageIdentifier": "474068628779.dkr.ecr.us-west-2.amazonaws.com/udacity-backend:latest",
+      "ImageConfiguration": {
+        "Port": "3000",
+        "RuntimeEnvironmentVariables": {
+          "NODE_ENV": "production"
+        }
+      },
+      "ImageRepositoryType": "ECR"
+    },
+    "AutoDeploymentsEnabled": false
+  },
+  "InstanceConfiguration": {
+    "Cpu": "0.25 vCPU",
+    "Memory": "0.5 GB"
+  },
+  "Tags": [
+    {
+      "Key": "Project",
+      "Value": "UdacityProject4"
+    }
+  ]
+}

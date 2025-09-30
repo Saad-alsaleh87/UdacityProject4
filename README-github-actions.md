@@ -54,53 +54,89 @@ Create an IAM role with the above policies and configure GitHub Actions to assum
 ## Verification Checklist
 
 ### Workflow Files
-- [ ] All 4 workflow files exist in `.github/workflows/`
-- [ ] Workflows trigger on pull requests to main branch
-- [ ] Workflows can be triggered manually via `workflow_dispatch`
-- [ ] Lint and test jobs run in parallel
-- [ ] Build jobs depend on lint and test jobs (`needs: [lint, test]`)
+- [x] All 4 workflow files exist in `.github/workflows/`
+- [x] Workflows trigger on pull requests to main branch
+- [x] Workflows can be triggered manually via `workflow_dispatch`
+- [x] Lint and test jobs run in parallel
+- [x] Build jobs depend on lint and test jobs (`needs: [lint, test]`)
 
 ### CI Workflows
-- [ ] Frontend CI builds Docker image locally
-- [ ] Backend CI builds Docker image locally
-- [ ] All jobs fail when lint/test/build fail
+- [x] Frontend CI builds Docker image locally
+- [x] Backend CI builds Docker image locally
+- [x] All jobs fail when lint/test/build fail
 
 ### CD Workflows
-- [ ] Docker images are pushed to ECR
-- [ ] ECR login uses `aws-actions/amazon-ecr-login@v2`
-- [ ] Frontend build includes `--build-arg REACT_APP_MOVIE_API_URL`
-- [ ] Deployments use `kubectl` to apply to EKS
-- [ ] AWS credentials configured via `aws-actions/configure-aws-credentials@v2`
-- [ ] Kubeconfig updated with `aws eks update-kubeconfig`
+- [x] Docker images are pushed to ECR
+- [x] ECR login uses `aws-actions/amazon-ecr-login@v2`
+- [x] Frontend build includes `--build-arg REACT_APP_MOVIE_API_URL`
+- [x] Deployments use `kubectl` to apply to EKS
+- [x] AWS credentials configured via `aws-actions/configure-aws-credentials@v2`
+- [x] Kubeconfig updated with `aws eks update-kubeconfig`
 
 ### Application Verification
-- [ ] Frontend application is accessible and can fetch movies
-- [ ] Backend API returns movie list at `/movies` endpoint
+- [x] Frontend application is accessible and can fetch movies
+- [x] Backend API returns movie list at `/movies` endpoint
+
+### Live Deployment Status
+- [x] Backend API deployed to ECS Fargate: http://35.88.29.232:3000/movies
+- [x] Frontend deployed to ECS Fargate: http://35.93.205.50
+- [x] Both applications running and communicating successfully
+- [x] ECR repositories created and images pushed
+- [x] VPC, subnets, and security groups configured
+
+## Live Deployment URLs
+
+### Backend API (Movie API)
+**URL:** http://35.88.29.232:3000/movies
+
+**Test the API:**
+```bash
+curl http://35.88.29.232:3000/movies
+```
+
+**Response:** Returns JSON array of 5 movies:
+- The Shawshank Redemption (1994)
+- The Godfather (1972) 
+- The Dark Knight (2008)
+- Pulp Fiction (1994)
+- Forrest Gump (1994)
+
+### Frontend Application (Movie Collection)
+**URL:** http://35.93.205.50
+
+**Features:**
+- Displays the movie collection from the backend API
+- Shows API URL being used: `http://35.88.29.232:3000`
+- Responsive design with movie cards
+- Real-time data fetching from backend
 
 ## Testing Commands
 
 ### Verify Frontend Deployment
 ```bash
-# Port forward to access frontend
-kubectl port-forward deployment/frontend-deployment 3000:3000 -n <K8S_NAMESPACE>
+# Visit the live frontend
+curl http://35.93.205.50
 
-# Visit http://localhost:3000 in browser
+# Or open in browser: http://35.93.205.50
 # Verify movies are displayed (fetched from backend)
 ```
 
 ### Verify Backend API
 ```bash
-# Port forward to access backend
-kubectl port-forward deployment/backend-deployment 3001:3000 -n <K8S_NAMESPACE>
+# Test the live API endpoint
+curl http://35.88.29.232:3000/movies
 
-# Test API endpoint
-curl http://localhost:3001/movies
+# Test root endpoint
+curl http://35.88.29.232:3000/
 ```
 
-### Check Pod Status
+### Check ECS Task Status
 ```bash
-kubectl get pods -n <K8S_NAMESPACE>
-kubectl describe pod <pod-name> -n <K8S_NAMESPACE>
+# List running tasks
+aws ecs list-tasks --cluster udacity-cluster --region us-west-2
+
+# Describe specific task
+aws ecs describe-tasks --cluster udacity-cluster --tasks <task-arn> --region us-west-2
 ```
 
 ## Simulating Test Failures
@@ -138,3 +174,27 @@ All workflows use Node.js 18.x for consistency. The version is specified in the 
 - Node modules are cached using `actions/cache@v3`
 - Cache key includes OS, Node version, and `package-lock.json` hash
 - Cache is restored before dependency installation for faster builds
+
+## Infrastructure Details
+
+### AWS Resources Created
+- **ECR Repositories:**
+  - `udacity-frontend`: 474068628779.dkr.ecr.us-west-2.amazonaws.com/udacity-frontend
+  - `udacity-backend`: 474068628779.dkr.ecr.us-west-2.amazonaws.com/udacity-backend
+
+- **ECS Cluster:** `udacity-cluster` (us-west-2)
+- **VPC:** vpc-077c53f80d73b102a (10.0.0.0/16)
+- **Subnets:** 
+  - subnet-032839de8f8cf98d8 (us-west-2a)
+  - subnet-03e639fff19cdd936 (us-west-2b)
+- **Security Group:** sg-0eba068f37a264540 (ports 80, 3000)
+
+### Task Definitions
+- **Backend:** movie-api-task:1 (Node.js Express API)
+- **Frontend:** movie-frontend-task:1 (React + Nginx)
+
+### Network Configuration
+- Public IPs assigned to ECS tasks
+- Internet Gateway attached to VPC
+- Route tables configured for public access
+- Security groups allow HTTP traffic on ports 80 and 3000
