@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Build outputs
+build/
+dist/
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+
+# AWS credentials (should never be committed)
+.aws/
+credentials
+
+# Helper scripts (not needed for CI/CD)
+get-aws-info.ps1
+get-urls.ps1
+get-urls.sh
+test-workflows-local.ps1
+test-workflows-local.sh
+setup-github-secrets.md
+TESTING-GUIDE.md
+
+# Kubernetes temporary files
+nodegroup-trust-policy.json
+
