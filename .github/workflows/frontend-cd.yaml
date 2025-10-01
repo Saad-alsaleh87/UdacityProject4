@@ -94,6 +94,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build, tag, and push image to Amazon ECR
+        working-directory: .
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_FRONTEND }}
@@ -101,7 +102,7 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             --build-arg REACT_APP_MOVIE_API_URL=${{ secrets.REACT_APP_MOVIE_API_URL }} \
-            -f ../frontend/Dockerfile ..
+            -f frontend/Dockerfile frontend/
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
   deploy:
@@ -119,20 +120,24 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Update kubeconfig
+        working-directory: .
         run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
 
       - name: Deploy to EKS
+        working-directory: .
         run: |
           kubectl set image deployment/frontend-deployment \
             frontend=${{ secrets.ECR_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY_FRONTEND }}:${{ github.sha }} \
             -n ${{ secrets.K8S_NAMESPACE }}
 
       - name: Verify deployment
+        working-directory: .
         run: |
           kubectl get pods -n ${{ secrets.K8S_NAMESPACE }}
           kubectl rollout status deployment/frontend-deployment -n ${{ secrets.K8S_NAMESPACE }}
 
       - name: Get service URL
+        working-directory: .
         run: |
           kubectl get svc frontend-service -n ${{ secrets.K8S_NAMESPACE }}
 

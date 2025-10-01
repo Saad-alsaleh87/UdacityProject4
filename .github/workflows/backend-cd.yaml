@@ -94,12 +94,13 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build, tag, and push image to Amazon ECR
+        working-directory: .
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_BACKEND }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ../backend/Dockerfile ..
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f backend/Dockerfile backend/
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
   deploy:
@@ -117,20 +118,24 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Update kubeconfig
+        working-directory: .
         run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
 
       - name: Deploy to EKS
+        working-directory: .
         run: |
           kubectl set image deployment/backend-deployment \
             backend=${{ secrets.ECR_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY_BACKEND }}:${{ github.sha }} \
             -n ${{ secrets.K8S_NAMESPACE }}
 
       - name: Verify deployment
+        working-directory: .
         run: |
           kubectl get pods -n ${{ secrets.K8S_NAMESPACE }}
           kubectl rollout status deployment/backend-deployment -n ${{ secrets.K8S_NAMESPACE }}
 
       - name: Test backend API
+        working-directory: .
         run: |
           kubectl port-forward deployment/backend-deployment 3001:3000 -n ${{ secrets.K8S_NAMESPACE }} &
           sleep 10
