@@ -102,3 +102,4 @@ echo "  kubectl port-forward svc/backend-service 3000:3000 -n $NAMESPACE"
 echo "  kubectl port-forward svc/frontend-service 8080:80 -n $NAMESPACE"
 echo ""
 
+

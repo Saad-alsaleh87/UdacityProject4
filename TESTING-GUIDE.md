@@ -300,3 +300,4 @@ kubectl port-forward svc/frontend-service 8080:80 -n <YOUR_NAMESPACE>
    - `kubectl get svc -A` output
    - Brief description of what each workflow does
 
+

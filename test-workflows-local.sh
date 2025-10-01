@@ -61,3 +61,4 @@ echo "  Backend:  docker run -p 3000:3000 backend-test:latest"
 echo "  Frontend: docker run -p 80:80 frontend-test:latest"
 echo ""
 
+
