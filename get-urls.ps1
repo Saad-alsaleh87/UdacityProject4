@@ -121,3 +121,6 @@ Write-Host "  kubectl port-forward svc/frontend-service 8080:80 -n $NAMESPACE"
 Write-Host ""
 
 
+
+
+

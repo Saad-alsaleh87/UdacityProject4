@@ -110,3 +110,4 @@ aws eks list-clusters --region us-east-1
 - **EKS deployment fails**: Ensure your EKS cluster exists and your IAM user has EKS permissions
 - **Session token expired**: Update the `AWS_SESSION_TOKEN` secret with fresh credentials from AWS Academy
 
+
